@@ -68,7 +68,10 @@ public class StoreController {
 		        sb.append(" `item_price` double NOT NULL,"); 
 		        sb.append(" `item_picture_address` varchar(255) NOT NULL"); 
 		        sb.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-		        jdbcTemplate.update(sb.toString());
+		        int check=jdbcTemplate.update(sb.toString());
+		        if(check<0) {
+		        	return JSONResult.errorMsg("添加商家失败");
+		        }
 			    return JSONResult.ok("添加商家成功");
 		}
 	}

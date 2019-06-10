@@ -17,7 +17,7 @@ public class UserController {
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	@RequestMapping("/queryuser")
 	public JSONResult queryuser(String user_id,double user_longitude,double user_latitude,String location) {
-		String sql = "select count(*) from users where user_id="+"3";
+		/*String sql = "select count(*) from users where user_id="+"3";
 		 // 判断是否存在记录数
 		   int count = jdbcTemplate.queryForObject(sql, Integer.class);
 		  if(count==0) {
@@ -27,8 +27,8 @@ public class UserController {
 		  else {
 			  sql = "update users set user_location=? where user_id=?";
 			  jdbcTemplate.update(sql,user_longitude,user_latitude,location,user_id);			  
-		      }
-		  String store_sql =  "select count(*) from store where store_id="+"3";
+		      }*/
+		  String store_sql =  "select count(*) from store where store_id="+user_id;
 		  if(jdbcTemplate.queryForObject(store_sql, Integer.class)!=0) {
 			  return JSONResult.ok("true");
 		  }
