@@ -31,7 +31,7 @@ public class GoodsController {
 		}
 		return JSONResult.ok(list);
 	}
-	////添加商品信息
+	//////添加商品信息
 	@RequestMapping("/add_goods_detail")
 	public JSONResult add_goods_detail(String store_id_name,String classify,String item_name,double item_price,String item_picture_address) {
 		  String sql = "insert into "+store_id_name+" value(?,?,?,?)";			 
