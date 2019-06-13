@@ -22,27 +22,30 @@ public class StoreController {
 	private JdbcTemplate jdbcTemplate;
 	//////查询商店信息
 	@RequestMapping("query_store_detail")
-    public JSONResult query_store_detail(String store_id,String store_name) {
-		String sql="select * from "+store_id+"_"+store_name;
+    public JSONResult query_store_detail(String store_id) {
+		String sql="select * from store where store_id="+store_id;
 		List<Map<String, Object>> list=new ArrayList<Map<String,Object>>();
 		 list = jdbcTemplate.queryForList(sql);
-	       /* for (Map<String, Object> map : list) {
-	            Set<Entry<String, Object>> entries = map.entrySet( );
-	                if(entries != null) {
-	                    Iterator<Entry<String, Object>> iterator = entries.iterator( );
-	                    while(iterator.hasNext( )) {
-	                    Entry<String, Object> entry =(Entry<String, Object>) iterator.next( );
-	                    Object key = entry.getKey( );
-	                    Object value = entry.getValue();
-	                    
-	                }
-	            }
-	        }*/
-	    	return JSONResult.ok(list);
+		 if(list!=null) {
+	    	return JSONResult.ok(list);}
+		 else {
+			return JSONResult.ok("请先注册商店");
+		}
 		
 	}
-	////添加新的商店信息
-	@RequestMapping("/addstore")
+	///更新商店信息
+	@RequestMapping("/update_store")
+	public JSONResult UpdateStore(String store_id,String store_name,String store_picture_address,String store_location,String store_longitude,String store_latitude) {
+		String sql="select store_name from store where store_id="+store_id;
+		String name=jdbcTemplate.queryForObject(sql, String.class);
+		sql = "update store set store_name=?,store_picture_address=?,store_location=?, store_longitude=?,store_latitude=?where store_id=?";
+		  jdbcTemplate.update(sql,store_name,store_picture_address,store_location,store_longitude,store_latitude,store_id);	
+		String renameTableSql = "rename table `"+store_id+"_"+name+"` to `"+store_id+"_"+store_name+"`;";
+	     jdbcTemplate.update(renameTableSql);
+		return JSONResult.ok("修改商店信息成功");
+	}
+	////添加新的商店的信息
+	@RequestMapping("/add_store")
 	public JSONResult AddStore(String store_id,String store_name,String store_picture_address,String store_location,String store_longitude,String store_latitude) {
 		String sql = "select count(*) from store where store_id="+store_id;
 		 // 判断是否存在记录数
@@ -67,6 +70,7 @@ public class StoreController {
 		        sb.append(" `item_name` varchar(255) NOT NULL,"); 
 		        sb.append(" `item_price` double NOT NULL,"); 
 		        sb.append(" `item_picture_address` varchar(255) NOT NULL"); 
+		        sb.append(" `id` int NOT NULL,"); 
 		        sb.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 		        int check=jdbcTemplate.update(sb.toString());
 		        if(check<0) {
@@ -81,29 +85,31 @@ public class StoreController {
 		String sql="select * from store";
 		List<Map<String, Object>> list=new ArrayList<Map<String,Object>>();
 		 list = jdbcTemplate.queryForList(sql);
-	        /*for (Map<String, Object> map : list) {
-	            Set<Entry<String, Object>> entries = map.entrySet( );
-	                if(entries != null) {
-	                    Iterator<Entry<String, Object>> iterator = entries.iterator( );
-	                    while(iterator.hasNext( )) {
-	                    Entry<String, Object> entry =(Entry<String, Object>) iterator.next( );
-	                    Object key = entry.getKey( );
-	                    Object value = entry.getValue();
-	                    
-	                }
-	            }
-	        }*/
+	       
 		  double longitude = Double.parseDouble(store_longitude);
 		  double latitude = Double.parseDouble(store_latitude);
+		  double t;
 		  List<Map<String, Object>> list1=new ArrayList<Map<String,Object>>();
 		 for(int i=0;i<list.size();i++) {
-			 if(LocationUtils.getDistance(latitude,longitude, (double)list.get(i).get("store_latitude"),(double)list.get(i).get("store_longitude"))<distance)
+			 t=LocationUtils.getDistance(latitude,longitude, (double)list.get(i).get("store_latitude"),(double)list.get(i).get("store_longitude"));
+			 if(t<distance)
 			 {
+				 list.get(i).put("distance", t);
 				 
 				 list1.add(list.get(i));
 			 }
 		 }
+		 
 	    	return JSONResult.ok(list1);    	
 	}
+	///删除商店
+		@RequestMapping("delete_store")
+	    public JSONResult query_store_detail(String store_id,String store_name) {
+			String sql="delete  from store where store_id="+store_id;
+			jdbcTemplate.update(sql);
+			sql="drop table "+store_id+"_"+store_name;
+			jdbcTemplate.update(sql);
+			return JSONResult.ok("删除成功");
+		}
 	
 }
