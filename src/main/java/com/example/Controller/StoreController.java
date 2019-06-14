@@ -69,8 +69,8 @@ public class StoreController {
 		        sb.append(" `classify` varchar(255) NOT NULL,");
 		        sb.append(" `item_name` varchar(255) NOT NULL,"); 
 		        sb.append(" `item_price` double NOT NULL,"); 
-		        sb.append(" `item_picture_address` varchar(255) NOT NULL"); 
-		        sb.append(" `id` int NOT NULL,"); 
+		        sb.append(" `item_picture_address` varchar(255) NOT NULL,"); 
+		        sb.append(" `id` varchar(255) NOT NULL"); 
 		        sb.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 		        int check=jdbcTemplate.update(sb.toString());
 		        if(check<0) {

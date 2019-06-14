@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.pojo.JSONResult;
+import com.example.pojo.SQLCheck;
 import com.example.pojo.StringToArray;
 
 @RequestMapping("/goods")
@@ -35,27 +36,35 @@ public class GoodsController {
 		}
 		return JSONResult.ok(list1);
 	}
-	//添加分类
+	//添加大分类
 	@RequestMapping("/add_classify")
 	public JSONResult add_classify(String store_id, String store_name,String classify,String item_name,double item_price,String item_picture_address) {
 		String sql="select count(*) from "+store_id+"_"+store_name+" where classify='"+classify+"'";
 		if (jdbcTemplate.queryForObject(sql,Integer.class) != 0) {
 			return JSONResult.ok("该分类以存在");
 		}
+		if(!SQLCheck.isValid(classify)) {
+			   return JSONResult.errorException("分类名字含有特殊字符和特殊字如delete/select/update");
+		   }
 		sql = "insert into "+store_id+"_"+store_name+" value(?,?,?,?,?)";	
 		 long id=System.currentTimeMillis();
-		  int check=jdbcTemplate.update(sql,classify,item_name,item_price,item_picture_address,id);
+		 String sR=String.valueOf(id);
+		  int check=jdbcTemplate.update(sql,classify,item_name,item_price,item_picture_address,sR);
           if(check<0) {
         	  return JSONResult.errorMsg("添加商品信息失败");
           }
 		return JSONResult.ok("添加商品信息成功");
 	}
-	//////添加商品信息
+	//////添加小分类
 	@RequestMapping("/add_item")
 	public JSONResult add_goods_detail(String store_id, String store_name,String classify,String item_name,double item_price,String item_picture_address) {
-		  String sql = "insert into "+store_id+"_"+store_name+" value(?,?,?,?)";
+		if(!SQLCheck.isValid(item_name)) {
+			   return JSONResult.errorException("商品名字含有特殊字符和特殊字如delete/select/update");
+		   } 
+		String sql = "insert into "+store_id+"_"+store_name+" value(?,?,?,?,?)";
 		  long id=System.currentTimeMillis();
-		  int check=jdbcTemplate.update(sql,classify,item_name,item_price,item_picture_address,id);
+		  String sR=String.valueOf(id);
+		  int check=jdbcTemplate.update(sql,classify,item_name,item_price,item_picture_address,sR);
           if(check<0) {
         	  return JSONResult.errorMsg("添加商品信息失败");
           }
@@ -76,15 +85,15 @@ public class GoodsController {
     //删除大分类
 	@RequestMapping("delete_classify")
 	public JSONResult delete_classify(String store_id,String store_name,String classify) {
-		String sql="delete from "+store_id+"_"+store_name+" where classify="+classify;
+		String sql="delete from "+store_id+"_"+store_name+" where classify='"+classify+"'";
 		jdbcTemplate.update(sql);
 		return JSONResult.ok("删除成功");
 	}
 	//删除小分类
 	@RequestMapping("delete_item")
-	public JSONResult delete_item(String store_id,String store_name,String item)
+	public JSONResult delete_item(String store_id,String store_name,String id)
 	{
-		String sql="delete from "+store_id+"_"+store_name+" where item='"+item+"'";
+		String sql="delete from "+store_id+"_"+store_name+" where id='"+id+"'";
 		jdbcTemplate.update(sql);
 		return JSONResult.ok("删除成功");
 	}
@@ -98,9 +107,8 @@ public class GoodsController {
 	}
 	//修改小分类信息
 	@RequestMapping("update_item")
-	public JSONResult update_item(String store_id,String store_name,String classify,String item_name,double item_price,String item_picture_address,int id) {
-		
-		String sql="update "+store_id+"_"+store_name+" set classify= '"+classify+"',item_name='"+item_name+"',item_price='"+item_name+"',item_picture_address='"+item_picture_address+"' where id="+id ;         
+	public JSONResult update_item(String store_id,String store_name,String classify,String item_name,double item_price,String item_picture_address,String id) {		
+		String sql="update "+store_id+"_"+store_name+" set classify= '"+classify+"',item_name='"+item_name+"',item_price='"+item_price+"',item_picture_address='"+item_picture_address+"' where id='"+id+"'" ;         
 		jdbcTemplate.update(sql);
 		return JSONResult.ok("更新成功");
 	}
