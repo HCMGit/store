@@ -37,12 +37,9 @@ public class UploadPicture {
 	
     @RequestMapping(value = "/weChat")
 
-    public ModelAndView uploadImage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public String uploadImage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         System.out.println("进入get方法！");
-
- 
-
         MultipartHttpServletRequest req =(MultipartHttpServletRequest)request;
 
         MultipartFile multipartFile =  req.getFile("file");
@@ -50,7 +47,7 @@ public class UploadPicture {
  
 
         String realPath = "C:\\Users\\11578\\Documents\\workspace-sts-3.9.8.RELEASE\\demo5-1\\upload\\wximg";
-
+        String absolutepathString=dates()+".jpg";
         try {
 
             File dir = new File(realPath);
@@ -60,8 +57,8 @@ public class UploadPicture {
                 dir.mkdir();
 
             }
-
-            File file  =  new File(realPath,"aaa.jpg");
+            
+            File file  =  new File(realPath,absolutepathString);
 
             multipartFile.transferTo(file);
 
@@ -75,7 +72,7 @@ public class UploadPicture {
 
         }
 
-        return null;
+        return realPath+"\\"+absolutepathString;
 
     }
 
